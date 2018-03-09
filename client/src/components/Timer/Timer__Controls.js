@@ -1,8 +1,8 @@
 import React, { Fragment } from 'react';
 
-export default function({ state = {}, actions }) {
+export default function({ state:{timer}, actions }) {
     return <Fragment>
-        {!state.isActive ?
+        {!timer.isActive ?
             <button onClick={actions.start}>start</button>
             :
             <button onClick={actions.stop}>stop</button>

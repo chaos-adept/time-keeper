@@ -1,39 +1,40 @@
-import React, { Component, createContext } from 'react';
+import React, {Component, createContext} from 'react';
 import Timer__State from './Timer__State';
 import Timer__Counter from './Timer__Counter';
 import Timer__Controls from './Timer__Controls';
+import {subscribe, start as startTimer, stop as stopTimer, getState} from '../../middleware/Timer'
 
-const Context = createContext()
+const Context = createContext();
 
-const { Provider } = Context
-export const { Consumer } = Context
+const {Provider} = Context;
+export const {Consumer} = Context;
 
 
 class Timer extends Component {
 
     constructor(props) {
         super(props);
-        this.state = { count: 0, isActive: false };
+        this.state = {timer: getState()};
     }
 
     componentDidMount() {
+        this.subToken = subscribe(() => this.updateTicks());
+    }
 
+    componentWillUnmount() {
+        this.subToken && this.subToken();
     }
 
     start() {
-        const intervalId = setInterval(() => {
-            this.increment();
-        }, 1000);
-        this.setState({ isActive: true, intervalId });
+        startTimer();
     }
 
     stop() {
-        this.state.intervalId && clearInterval(this.state.intervalId);
-        this.setState({ isActive: false, intervalId: undefined });
+        stopTimer();
     }
 
-    increment() {
-        this.setState({ count: this.state.count + 1 });
+    updateTicks() {
+        this.setState({timer: getState()});
     }
 
     render() {

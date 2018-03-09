@@ -1,7 +1,7 @@
 import React, { Fragment } from 'react';
 
-export default function({ state = {}, actions }) {
+export default function({ state:{timer}, actions }) {
     return <Fragment>
-        <span>{state.count}</span>
+        <span>{timer.ticks}</span>
     </Fragment>;
 }

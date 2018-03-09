@@ -1,7 +1,7 @@
 import React, { Fragment } from 'react';
 
-export default function ({ state = {} }) {
+export default function ({ state:{timer} }) {
     return <Fragment>
-        isActive: {(state.isActive && 'true') || 'false'}
+        isActive: {(timer.isActive && 'true') || 'false'}
     </Fragment>
 };
