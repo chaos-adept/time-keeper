@@ -1,44 +1,39 @@
 import PubSub from 'pubsub-js';
+import {
+    start as sendStart,
+    stop as sendStop,
+    reset as sendReset,
+    subscribeTicks as socketSubscribeTicks
+} from './timer__socket';
 
 const TickEventTopic = 'timer.tick';
 
 let intervalId;
 let ticks = 0;
 
-function notify() {
-    PubSub.publish(TickEventTopic, {state: getState()});
+function notify(data) {
+    PubSub.publish(TickEventTopic, data);
 }
 
-export function start() {
-    intervalId = setInterval(() => {
-        ticks++;
-        notify();
-    }, 1000);
+socketSubscribeTicks(notify);
 
-    notify();
+export function start() {
+    sendStart();
 }
 
 export function stop() {
-    intervalId && clearInterval(intervalId);
-    intervalId = null;
-    notify();
+    sendStop();
 }
 
 export function reset() {
-    stop();
-    ticks = 0;
-    notify();
+    sendReset();
 }
 
-export function subscribe(callback) {
-    const token = PubSub.subscribe(TickEventTopic, callback);
+export function subscribe(handler) {
+    const token = PubSub.subscribe(TickEventTopic, (event, data) => handler(data));
     return () => PubSub.unsubscribe(token);
 }
 
 export function clearAllSubscriptions() {
     PubSub.unsubscribe(TickEventTopic);
-}
-
-export function getState() {
-    return {ticks, isActive: !!intervalId}
 }

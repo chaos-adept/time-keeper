@@ -1,5 +1,14 @@
 import {subscribe as subscribe, start, stop, clearAllSubscriptions, getState, reset} from './index';
 
+jest.mock('./timer__socket', () => {
+    let handler;
+    return {
+        subscribeTicks: (sub) => {handler = sub},
+        start: () => { handler(); },
+        stop: () => {},
+        reset: () => {}
+    }
+});
 
 beforeEach(() => {
     jest.useFakeTimers();
@@ -9,16 +18,14 @@ afterEach(() => {
     jest.clearAllTimers();
     reset();
     clearAllSubscriptions();
+    jest.resetModules();
 });
 
 function forceTick() {
     start();
-    jest.runTimersToTime(1000);
 }
 
 describe('events', () => {
-
-
     it('subscribe to events', () => {
         //when
         const unsub = subscribe(jest.fn());

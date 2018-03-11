@@ -2,7 +2,7 @@ import React, {Component, createContext} from 'react';
 import Timer__State from './Timer__State';
 import Timer__Counter from './Timer__Counter';
 import Timer__Controls from './Timer__Controls';
-import {subscribe, start as startTimer, stop as stopTimer, getState} from '../../middleware/Timer'
+import {subscribe, start as startTimer, stop as stopTimer} from '../../middleware/Timer'
 
 const Context = createContext();
 
@@ -14,11 +14,11 @@ class Timer extends Component {
 
     constructor(props) {
         super(props);
-        this.state = {timer: getState()};
+        this.state = {timer: {}};
     }
 
     componentDidMount() {
-        this.subToken = subscribe(() => this.updateTicks());
+        this.subToken = subscribe((state) => this.updateTicks(state));
     }
 
     componentWillUnmount() {
@@ -33,8 +33,8 @@ class Timer extends Component {
         stopTimer();
     }
 
-    updateTicks() {
-        this.setState({timer: getState()});
+    updateTicks(state) {
+        this.setState({timer: state});
     }
 
     render() {
