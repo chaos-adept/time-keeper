@@ -1,14 +1,7 @@
-import React, {Component, createContext} from 'react';
-import Timer__State from './Timer__State';
-import Timer__Counter from './Timer__Counter';
-import Timer__Controls from './Timer__Controls';
+import React, {Component} from 'react';
+import Timer__Presenter from './Timer__Presenter';
 import {subscribe, start as startTimer, stop as stopTimer} from '../../middleware/Timer'
-
-const Context = createContext();
-
-const {Provider} = Context;
-export const {Consumer} = Context;
-
+import {EVENT_StatusTopic, EVENT_TickEventTopic, EVENT_WelcomeEventTopic} from "../../middleware/Timer/index";
 
 class Timer extends Component {
 
@@ -18,43 +11,20 @@ class Timer extends Component {
     }
 
     componentDidMount() {
-        this.subToken = subscribe((state) => this.updateTicks(state));
+        this.subTokens = [
+            subscribe(EVENT_WelcomeEventTopic, (initState) => this.setState({welcomed: true, timer: initState})),
+            subscribe(EVENT_TickEventTopic, (state) => this.setState({timer: {...this.state.timer, ...state}})),
+            subscribe(EVENT_StatusTopic, (status) => this.setState({timer: {...this.state.timer, status}}))
+        ];
     }
 
     componentWillUnmount() {
-        this.subToken && this.subToken();
-    }
-
-    start() {
-        startTimer();
-    }
-
-    stop() {
-        stopTimer();
-    }
-
-    updateTicks(state) {
-        this.setState({timer: state});
+        this.subTokens && this.subTokens.forEach(_ => _());
     }
 
     render() {
-        return <Provider value={{
-            state: this.state || {},
-            actions: {
-                stop: () => this.stop(),
-                start: () => this.start()
-            },
-        }}>
-            <div>
-                <Consumer>{Timer__State}</Consumer>
-            </div>
-            <div>
-                <Consumer>{Timer__Counter}</Consumer>
-            </div>
-            <div>
-                <Consumer>{Timer__Controls}</Consumer>
-            </div>
-        </Provider>
+        const actions = {start: startTimer, stop: stopTimer};
+        return <Timer__Presenter state={this.state} actions={actions}/>
     }
 
 }
